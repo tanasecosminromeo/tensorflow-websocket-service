@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>TensorFlow Microservice</title>
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    </head>
+    <body>
+        <center>
+            <div style="
+            position: relative;
+            width: 640px;
+            height: 480px;">
+                <img id="cam" width="640" height="480" src="http://192.168.100.67:8000/stream.mjpg"/>
+                <canvas id="myCanvas" width="640" height="480" ></canvas>
+            </div>
+    
+            <br />
+            <input id="#streamId" style="width: 300px" type="text" value="http://192.168.100.67:8000/stream.mjpg" placeholder="Enter mjpg stream here" />
+            <button onclick="app.loadStream()">Start detection</button>
+        </center>
+
+        <script src="/socket-port.js"></script>
+        <script src="/app.js"></script>
+        <script src="/app/handle.js"></script>
+        <script src="/app/call.js"></script>
+        <script src="/app/draw.js"></script>
+        <style>
+            #myCanvas {
+                position: absolute;
+                left: 0;
+            }
+        </style>
+    </body>
+</html> 
