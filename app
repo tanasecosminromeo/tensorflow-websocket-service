@@ -70,6 +70,9 @@ case "$1" in
     echo "Stopping $CONTAINER_NAME"
     docker stop $CONTAINER_NAME
 ;;
+'clear-logs')
+    rm -rf var/logs/*
+;;
 'logs')
     echo "Logs of $CONTAINER_NAME"
     docker logs $CONTAINER_NAME
@@ -126,6 +129,7 @@ case "$1" in
     echo -e '\t./app sudo\t\t - Enter container as root'
     echo -e '\t./app stop\t\t - Stops the container'
     echo -e '\t./app logs\t\t - Show all container logs'
+    echo -e '\t./app clear-logs\t - Clear logs'
     echo -e '\t./app restart\t\t - Re-creates the container'
     echo -e '\t./app remove\t\t - Removes the container'
     echo -e '\t./app build\t\t - Build image'
