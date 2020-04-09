@@ -1,18 +1,66 @@
 app.handle = {
     commandId: 0,
     lastCommand: null,
-    detect: function (){
-        let url = $('#streamId').val(),
-            img = $('#cam');
+    detect: function (webcamOff){
+        if (webcamOff){
+            let videoObj = $('#videoElement');
+            videoObj[0].srcObject = null;
+            $('#cam').css('display', 'block');
+            videoObj.css('display', 'none');
 
-        if (url.indexOf('.mjpg')){
-            app.handle.send('detect', ['stream', url]);
-        } else {
-            app.handle.send('detect', ['url', url]);
+            app.handle.webcamOn = false;
         }
-        
-        img.attr('src', url)
 
+        if (app.handle.webcamOn){
+            app.handle.send('detect', ['base64', app.handle.capture()])
+        } else {
+
+                let url = $('#streamId').val(),
+                img = $('#cam');
+
+            if (url.indexOf('.mjpg')){
+                app.handle.send('detect', ['stream', url]);
+            } else {
+                app.handle.send('detect', ['url', url]);
+            }
+            
+            img.attr('src', url)
+        }
+
+    },
+    capture: function () {
+        let video = $('#videoElement')[0];
+        scaleFactor = 1;
+
+        var w = video.videoWidth * scaleFactor;
+        var h = video.videoHeight * scaleFactor;
+        var canvas = document.createElement('canvas');
+        canvas.width  = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, w, h);
+    
+        return canvas.toDataURL('image/jpeg').split(',')[1]
+    },
+    webcam: function (){
+        app.handle.webcamOn = true
+        let obj = $('#videoElement'),
+            video = obj[0];
+        $('#cam').css('display', 'none');
+        obj.css('display', 'block');
+
+        if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                video.srcObject = stream;
+                setTimeout(function (){
+                    app.handle.send('detect', ['base64', app.handle.capture()])
+                }, 1000);
+            })
+            .catch(function (err0r) {
+                console.log("Something went wrong!");
+            });
+        }
     },
     send: function (action, parameters){
         switch (app.ws.readyState){

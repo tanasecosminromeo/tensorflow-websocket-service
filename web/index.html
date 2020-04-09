@@ -11,13 +11,19 @@
                     width: 640px;
                     height: 480px;">
                 <img id="cam" width="640" height="480" src="http://192.168.100.67:8000/stream.mjpg"/>
+
+                <video autoplay="true" id="videoElement">
+
+                </video>
+
                 <canvas id="myCanvas" width="640" height="480" ></canvas>
             </div>
     
             <br />
             <input id="streamId" style="width: 300px" type="text" value="http://192.168.100.67:8000/stream.mjpg" placeholder="Enter mjpg stream here" />
             <!-- https://i.pinimg.com/originals/fd/9a/4a/fd9a4a298f5262fbe2f39c5093f6ecd1.jpg -->
-            <button onclick="app.handle.detect()">Start detection</button>
+            <button onclick="app.handle.detect(true)">Start detection</button>
+            <button onclick="app.handle.webcam()">Webcam</button>
         </center>
 
         <script src="/socket-port.js"></script>
@@ -26,7 +32,7 @@
         <script src="/app/call.js"></script>
         <script src="/app/draw.js"></script>
         <style>
-            #myCanvas {
+            #myCanvas, video, img {
                 position: absolute;
                 left: 0;
             }
