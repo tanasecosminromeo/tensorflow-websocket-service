@@ -4,8 +4,13 @@ app.handle = {
     detect: function (){
         let url = $('#streamId').val(),
             img = $('#cam');
-        app.handle.send('detect', ['url', url]);
-        console.log(url);
+
+        if (url.indexOf('.mjpg')){
+            app.handle.send('detect', ['stream', url]);
+        } else {
+            app.handle.send('detect', ['url', url]);
+        }
+        
         img.attr('src', url)
 
     },
@@ -58,9 +63,6 @@ app.handle = {
             return;
         }
 
-        console.log('status', status);
-        console.log('command', command);
-
         switch (command){
             case "detect": 
                 let [detectionStatus, detectionId, detections] = result;
@@ -68,6 +70,10 @@ app.handle = {
                 if (detectionStatus !== "ok"){
                     console.log('invalid detection', detectionId);
                     return;
+                }
+
+                if ($('#streamId').val().indexOf('.mjpg')){
+                    app.handle.detect();
                 }
 
                 app.call.drawImage(detections);

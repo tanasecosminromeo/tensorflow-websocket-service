@@ -11,7 +11,6 @@ app.call = {
         context.clearRect(0,0,canvas.width, canvas.height);
 
         for (let detection of detections){
-            console.log(detection);
             let [percentage, [ymin, xmin, ymax, xmax], label] = detection;
             if (percentage < app.config.percentageLimit) continue;
 

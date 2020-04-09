@@ -29,7 +29,6 @@ while (ret):
   job = jobs.get()
 
   if job == None:
-    logging.debug('wait for job')
     time.sleep(jobs.cooldown())
     continue
 

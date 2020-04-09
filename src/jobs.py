@@ -42,7 +42,7 @@ class jobs:
     ###Todo: Make this configurable via redis
     ###Todo: Lower this after testing
     def cooldown():
-        return 1
+        return 0.01
 
     #If no jobs are found check again in
     ###Todo: Make this configurable via redis
