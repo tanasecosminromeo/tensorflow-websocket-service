@@ -1,4 +1,19 @@
 window.app = {
+    latency: {},
+    calculateLatency: function(command){
+        let values = app.latency[command];
+        let requests = Object.keys(values).length;
+        totalDiff = 0;
+        for (let v of Object.entries(values)){
+            if (v[1][1] === -1){
+                requests--;
+                continue;
+            }
+            totalDiff += (v[1][1] - v[1][0]);
+        }
+    
+        return totalDiff/requests;
+    },
     ws: null,
     config: {
         percentageLimit: 0.2

@@ -10,7 +10,7 @@ app.handle = {
 
             app.handle.webcamOn = false;
         }
-
+        
         if (app.handle.webcamOn){
             app.handle.send('detect', ['base64', app.handle.capture()])
         } else {
@@ -75,6 +75,10 @@ app.handle = {
                 app.handle.commandId += 1;
 
                 let sendCommand = JSON.stringify([app.handle.commandId, action, parameters, app.handle.commandId]);
+                if (typeof app.latency[action] === "undefined"){
+                    app.latency[action] = {}
+                }
+                app.latency[action][app.handle.commandId] = [new Date().getTime(), -1];
                 app.ws.send(sendCommand)
 
                 app.handle.lastCommand = sendCommand;
@@ -101,6 +105,7 @@ app.handle = {
         app.lastMessage = JSON.parse(msg.data)
         
         let [commandId, command, status, result] = app.lastMessage;
+        app.latency[command][commandId][1] = new Date().getTime();
 
         if (status !== "ok"){
             console.log('error', app.lastMessage);
