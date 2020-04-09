@@ -20,7 +20,7 @@ window.app = {
             if (app.ws.readyState === 1){
                 app.handle.send('ping');
             };
-        }, 200);
+        }, 50);
     },
     connect: function (){
         let ws_path = 'ws://'+window.location.hostname+':'+WEBSOCKET_PORT+'/ws';

@@ -17,6 +17,7 @@ class TFSocket(WebSocket):
    
    def sendJobResults(self):
       while True:
+         ##TODO: We should make sure we send up to date results
          result = jobs.result()
 
          if result != None:
@@ -46,6 +47,7 @@ class TFSocket(WebSocket):
                "Error processing command #%d from %s - %s %s" % [command.id, self.hash, sys.exc_info()[0], sys.exc_info()[1]]
             )
 
+      ##Todo: The detection script needs to connect to the server and announce when a detection is made, we need to remove the ping-ping requirement to get a result
       self.sendJobResults()
       
    def handleConnected(self):
