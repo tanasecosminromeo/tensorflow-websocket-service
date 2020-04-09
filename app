@@ -53,6 +53,9 @@ case "$1" in
     exec pkill -f python3
     exec python3 httpserver.py
     exec python3 websocket.py
+
+    ##Todo: Remove this. It should be run by the socket WHEN required
+    exec python3 src/detect ssd_mobilenet_v1_coco_11_06_2017 
 ;;
 'exec')
     USER=$(whoami)
