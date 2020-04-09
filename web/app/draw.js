@@ -8,7 +8,7 @@ class AppDraw {
         context.beginPath();
         context.globalAlpha = 0.2;
         context.rect(x, y, width, height);
-        context.fillStyle = getColorForPercentage(percentage);
+        context.fillStyle = 'red';
         context.fill();
         context.lineWidth = 7;
         context.strokeStyle = 'black';
@@ -17,13 +17,13 @@ class AppDraw {
         context.beginPath();
         context.globalAlpha = 1;
         context.fillText(label, x, y-5);
-        context.fillStyle = self.getColorForPercentage(percentage);
+        context.fillStyle = 'red';
         context.fill();
         context.closePath();
         context.beginPath();
         context.globalAlpha = 1;
         context.fillText(percentage+'%', x+width-20, y-5);
-        context.fillStyle = self.getColorForPercentage(percentage);
+        context.fillStyle = 'red';
         context.fill();
         context.closePath();
     }

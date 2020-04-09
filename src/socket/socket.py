@@ -1,44 +1,53 @@
-import hashlib, json, logging, redis
+import hashlib, json, logging
 logger = logging.getLogger(__name__)
 
 from SimpleWebSocketServer import WebSocket
-from src.socket.command import TFCommand
+from src.socket.handle import TFHandle
 
-store = redis.Redis()
+from src.jobs import job, jobs
 
 clients = []
 import subprocess
 
+from src.socket.command import TFCommand, PrepareResult
+
 class TFSocket(WebSocket):
+   def send(self, command, data, error=False):
+      self.sendMessage(json.dumps([command.id, command.action, "ok" if not error else "error", data]))
+   
+   def sendJobResults(self):
+      while True:
+         result = jobs.result()
+
+         if result != None:
+            for c in clients:
+               if c.hash == result.client:
+                  command = PrepareResult(result)
+                  c.send(command, result.data)
+         else:
+            break
+
    def handleMessage(self):
       command = TFCommand(self.data)
-      print(command.action)
-      # command = TFCommand(self.data)
-      # if self.data == "image":
-      #    redis_data = store.get(self.clientHash+"-detection")
-      #    if redis_data != None:
-      #       data = json.loads(redis_data)
-      #       # print('sent image', data)
-      #       self.sendMessage(json.dumps(['ok', 'image', data]))
-      #       #self.sendMessage(json.dumps(['ok', 'image', clientProc[self.clientHash], json.loads(store.get(self.clientHash+"-detection")) ] ))
-      #    else:
-      #       print('loading')
-      #       self.sendMessage(json.dumps(['loading']))
-      # elif self.data == "label":
-      #    redis_data = store.get(self.clientHash+"-categories")
-      #    if redis_data != None:
-      #       data = json.loads(redis_data)
-      #       print('sent label', data)
-      #       self.sendMessage(json.dumps(['ok', 'label', data]))
-      #    else:
-      #       self.sendMessage(json.dumps(['loading']))
-      # elif self.data == "start-stream":
-      #    proc = subprocess.Popen(["/usr/bin/python3", "/code/detect.py", self.clientHash, "http://192.168.100.67:8000/stream.mjpg", "debug", "generate-image2"], stdin=None, stdout=subprocess.PIPE)
-      #    clientProc[self.clientHash] = proc.pid
-      # else:
-      #    print('invalid command')
-      #    self.sendMessage(json.dumps(['error', self.data, 'invalid command']))
+      if command.action == 'ping':
+         self.send(command, 'pong')
+      elif command.action == 'labels':
+         self.send(command, jobs.labels())
+      elif command.action == 'detect':
+         [type, data] = command.parameters
 
+         if type not in ['url', 'base64', 'stream']:
+            self.send(command, "invalid type %s" % str(type), True)
+         
+         try:
+            job(self.hash, command.id, type, data, False).send()
+         except:
+            logging.debug(
+               "Error processing command #%d from %s - %s %s" % [command.id, self.hash, sys.exc_info()[0], sys.exc_info()[1]]
+            )
+
+      self.sendJobResults()
+      
    def handleConnected(self):
       sha_1 = hashlib.sha1()
       sha_1.update(json.dumps(self.address).encode('utf-8'))
@@ -51,3 +60,6 @@ class TFSocket(WebSocket):
       clients.remove(self)
       clientProc.remove(clientProc[self.hash])
       kill(clientProc[self.hash])
+   
+   def clients(self):
+      return clients

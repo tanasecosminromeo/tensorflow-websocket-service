@@ -1,7 +1,15 @@
 app.handle = {
     commandId: 0,
     lastCommand: null,
-    send: function (command, parameters){
+    detect: function (){
+        let url = $('#streamId').val(),
+            img = $('#cam');
+        app.handle.send('detect', ['url', url]);
+        console.log(url);
+        img.attr('src', url)
+
+    },
+    send: function (action, parameters){
         switch (app.ws.readyState){
             case 0:
                 console.log('ws connecting');
@@ -13,7 +21,7 @@ app.handle = {
                 
                 app.handle.commandId += 1;
 
-                let sendCommand = JSON.stringify([command, parameters, app.handle.commandId]);
+                let sendCommand = JSON.stringify([app.handle.commandId, action, parameters, app.handle.commandId]);
                 app.ws.send(sendCommand)
 
                 app.handle.lastCommand = sendCommand;
@@ -33,14 +41,20 @@ app.handle = {
 
         app.handle.commandId = 0;
         app.handle.lastCommand = null;
+
+        app.call.getLabels();
     },
-    handle: function (msg) {
+    message: function (msg) {
         app.lastMessage = JSON.parse(msg.data)
         
-        let [status, command, result] = app.lastMessage;
+        let [commandId, command, status, result] = app.lastMessage;
 
         if (status !== "ok"){
             console.log('error', app.lastMessage);
+            return;
+        }
+
+        if (command === 'ping') { //Ignore ping-pong
             return;
         }
 
@@ -48,20 +62,17 @@ app.handle = {
         console.log('command', command);
 
         switch (command){
-            case "image": 
-                if (typeof app.imageInterval == 'number'){
-                    clearInterval(app.imageInterval);
-                }
-                app.call.drawImage(result);
-            break;
-            case "label": 
-                if (typeof app.labelInterval == 'number'){
-                    clearInterval(app.labelInterval);
+            case "detect": 
+                let [detectionStatus, detectionId, detections] = result;
 
-                    app.imageInterval = setInterval(function (){ 
-                        app.ws.send('image');
-                    }, 100);
+                if (detectionStatus !== "ok"){
+                    console.log('invalid detection', detectionId);
+                    return;
                 }
+
+                app.call.drawImage(detections);
+            break;
+            case "labels": 
                 app.call.saveLabels(result);
             break;
             default:

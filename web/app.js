@@ -14,6 +14,14 @@ window.app = {
             }, 100);
         }, 5000);
     },
+    //Todo: Replace with socket event in detect.py to announce detection
+    pingInterval: function (){
+        setInterval(function (){ 
+            if (app.ws.readyState === 1){
+                app.handle.send('ping');
+            };
+        }, 200);
+    },
     connect: function (){
         let ws_path = 'ws://'+window.location.hostname+':'+WEBSOCKET_PORT+'/ws';
         app.ws = new WebSocket (ws_path);
@@ -28,6 +36,7 @@ window.app = {
         }
         
         app.connect();
+        app.pingInterval();
     }
 }
 

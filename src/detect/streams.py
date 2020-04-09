@@ -6,28 +6,22 @@ class streamClass:
         self.streams = {}
 
     def read(self, job):
-        if job.type == 'stream':
-            if job.data not in self.streams:
-                logger.debug(
-                    "Open stream #%s requested by job %d" % (job.data, job.id)
-                )
-                self.streams[job.data] = cv2.VideoCapture(job.data)
+        ###Todo: Clear the stream if not used for a while (30sec???)
+        if job.data not in self.streams:
+            logger.debug(
+                "Open stream #%s requested by job %d" % (job.data, job.id)
+            )
+            self.streams[job.data] = cv2.VideoCapture(job.data)
 
-            ret, image = self.streams[job.data].read()
+        ret, image = self.streams[job.data].read()
 
-            if ret == False:
-                logger.warning(
-                    "Steam %s requested by job #%d may be off" % [job.data, job.id]
-                )
+        if ret == False:
+            logger.warning(
+                "Steam %s requested by job #%d may be off" % (job.data, job.id)
+            )
 
-                return None
+            return None
 
-            return image
-        
-        logger.warning(
-            "Cannot process job #%d - %s" % [job.id, job.type]
-        )
-
-        return None
+        return image
 
 streams = streamClass()

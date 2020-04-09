@@ -27,12 +27,19 @@ logging.debug('Will detect the following categories '+str(labels))
 ret = True
 while (ret):
   job = jobs.get()
-  detectionId += 1
+
+  if job == None:
+    logging.debug('wait for job')
+    time.sleep(jobs.cooldown())
+    continue
+
   image_np = job.input()
 
-  if image_np == None:
-    job.result(["fail"])
+  if type(image_np) == type(None):
+    time.sleep(jobs.cooldown())
     continue
+
+  detectionId += 1
 
   # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
   image_np_expanded = np.expand_dims(image_np, axis=0)
@@ -58,13 +65,16 @@ while (ret):
       line_thickness=8)
 
     #Store Detection in Redis
-    job.result(["ok", detectionId, detections, str(image_base64)])
+    job.save(["ok", detectionId, detections, str(image_base64)])
   else:
     image_base64 = ""
     #Store Detection in Redis
-    job.result(["ok", detectionId, detections])
+    job.save(["ok", detectionId, detections])
 
   logging.debug(
     "Job #%d: %s (%s)" % (detectionId, detections, "with-image" if job.withImage else "without-image")
   )
+
   time.sleep(jobs.cooldown())
+  if jobs.inQue() == 0:
+    time.sleep(jobs.recheck())
